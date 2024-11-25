@@ -2,7 +2,8 @@ const mongoose = require("mongoose");
 
 // Mongodb URL define
 
-const mongoURL = 'mongodb://localhost:27017/managedb' //database name
+// const mongoURL = process.env.localdb_url //database local
+const mongoURL = process.env.mongoURL; // databse monog
 
 mongoose.connect(mongoURL,{
     useNewUrlParser:true,

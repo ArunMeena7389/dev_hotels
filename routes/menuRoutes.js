@@ -10,7 +10,6 @@ router.post('/create', async (req,res)=>{
         //create a new person document using the mongose model
         const newItemMenu = new MenuItem(data);
         const response = await newItemMenu.save();
-        console.log(response,'----------rres');
         res.status(200).json(response);
         
 
@@ -61,7 +60,6 @@ router.put('/:id',async(req,res)=>{
         if(!response){
             res.status(404).json({error:"Person not found"})
         }
-        console.log("menu data updated");
         res.status(200).json(response);
     }catch(error){
         res.status(500).json({error:"Internal Server Error"})

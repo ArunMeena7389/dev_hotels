@@ -24,7 +24,6 @@ router.post('/', async (req,res)=>{
         //create a new person document using the mongose model
         const newPerson = new Person(data);
         const response = await newPerson.save();
-        console.log(response,'----------rres');
         res.status(200).json(response);
         
 
