@@ -7,9 +7,14 @@ require('dotenv').config();
 const bodyParser = require('body-parser')
 app.use(bodyParser.json())
 
+const Person = require('./modules/person')
+const MenuItem = require('./modules/MenuItem');
+
+
 app.get('/', function(req,res){
     res.send('Welcome to my data base')
 })
+
 
 
 //Import route file
@@ -20,8 +25,8 @@ const menuRoutes = require('./routes/menuRoutes');
 app.use('/person',personRoutes);
 app.use('/menu',menuRoutes);
 
-const PORT = process.env.PORT ||3030
-app.listen(PORT,()=>{
+const PORT = process.env.PORT || 3030;
+app.listen(3030,()=>{
     console.log('listening port 3030');
     
 })
