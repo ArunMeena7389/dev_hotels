@@ -9,6 +9,11 @@
   command = "node server.js"     # Command to start your app in development
   port = 3030                   # Port for local development (optional)
 
-[plugins]
-  # You can specify any Netlify plugins here
+  [plugins]
+[[plugins]]
+package = "netlify-plugin-one"
+
+[[plugins]]
+package = "netlify-plugin-two"
+
 
