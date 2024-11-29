@@ -7,10 +7,25 @@ require('dotenv').config();
 // const mongoURL = process.env.localdb_url //database local
 const mongoURL = process.env.mongodb_url; // databse monog
 
+
 mongoose.connect(mongoURL,{
     useNewUrlParser:true,
     useUnifiedTopology:true
 })
+
+// module.exports = async () => {
+//     console.log(mongoURL,'--------------mongoURL');
+
+//     try {
+//         await mongoose.connect(mongoURL, {
+//             useNewUrlParser:true,
+//             useUnifiedTopology:true
+//         });
+//         console.log("CONNECTED TO DATABASE SUCCESSFULLY");
+//     } catch (error) {
+//         console.error('COULD NOT CONNECT TO DATABASE:', error.message);
+//     }
+// };
 
 const db = mongoose.connection;
 
