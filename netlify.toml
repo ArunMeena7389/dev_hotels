@@ -1,6 +1,7 @@
 [build]
   publish = "build"                # Adjust according to your build output
   command = "npm run build"        # Adjust according to your build script
+  functions = "functions"
 
 [functions]
   directory = "netlify/functions"  # Directory for serverless functions
