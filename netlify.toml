@@ -1,19 +1,9 @@
 [build]
-  publish = "dist"              # Directory for your built files
-  command = "npm run build"     # Command to build your app
-
-[functions]
-  directory = "functions"       # Directory for serverless functions
-
-[dev]
-  command = "node server.js"     # Command to start your app in development
-  port = 3030                   # Port for local development (optional)
-
-  [plugins]
-[[plugins]]
-package = "netlify-plugin-one"
+  publish = "dist"
+  command = "npm run build"
 
 [[plugins]]
-package = "netlify-plugin-two"
+  package = "netlify-plugin-one"
 
-
+[[plugins]]
+  package = "netlify-plugin-two"
