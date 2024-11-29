@@ -2,6 +2,7 @@
   publish = "build"                # Adjust according to your build output
   command = "npm run build"        # Adjust according to your build script
   functions = "functions"
+  base = "dev_hotels"  # Ensure this is correct if you are using a base
 
 [functions]
   directory = "netlify/functions"  # Directory for serverless functions
