@@ -1,9 +1,16 @@
 [build]
-  publish = "dist"
-  command = "npm run build"
+  publish = "build"                # Adjust according to your build output
+  command = "npm run build"        # Adjust according to your build script
 
-[[plugins]]
-  package = "netlify-plugin-one"
+[functions]
+  directory = "netlify/functions"  # Directory for serverless functions
 
-[[plugins]]
-  package = "netlify-plugin-two"
+[dev]
+  command = "node server.js"          # Command for local development
+  port = 3030                      # Optional development port
+
+[environment]
+  NODE_ENV = "production"          # Example to set environment variables
+
+[redirects]
+  /*  /api/:splat  200              # Example redirect for functions
