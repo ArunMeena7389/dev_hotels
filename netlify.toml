@@ -11,6 +11,3 @@
 
 [environment]
   NODE_ENV = "production"          # Example to set environment variables
-
-[redirects]
-  /*  /api/:splat  200              # Example redirect for functions
