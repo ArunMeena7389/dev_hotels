@@ -5,7 +5,7 @@ require('dotenv').config();
 // Mongodb URL define
 
 // const mongoURL = process.env.localdb_url //database local
-const mongoURL = "mongodb+srv://arunmeena738950:arun7389@cluster0.g44ty.mongodb.net/"; // databse monog
+const mongoURL = "mongodb+srv://arun7389:arun7389@cluster0.g44ty.mongodb.net/"; // databse monog
 
 
 mongoose.connect(mongoURL,{

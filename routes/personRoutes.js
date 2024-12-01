@@ -1,8 +1,66 @@
 const express = require("express")
 const router = express.Router();
+const bcrypt = require('bcrypt');
+
 
 const Person = require('../modules/person')
+const {generateToken} = require('./../jwt');
 
+// POST route to add a person
+router.post('/register', async (req, res) =>{
+    try{
+        const data = req.body // perosn ka data he 
+
+        // Create kia person ka data
+        const newPerson = new Person(data);
+
+        // 1 naya person add kia he
+        const response = await newPerson.save();
+        console.log('data saved');
+
+        const payload = {
+            id: response.id,
+            email: response.email
+        }
+        console.log(JSON.stringify(payload));
+        const token = generateToken(payload);
+        console.log("Token is : ", token);
+
+        res.status(200).json({response: response, token: token});
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({error: 'Internal Server Error'});
+    }
+})
+// for login
+router.post('/login', async(req, res) => {
+    try{
+        // Extract email and password hona
+        const {email, password} = req.body;
+
+        // Find the user by email
+        const user = await Person.findOne({email: email});
+
+        // agr email or password match nhi kie to error ayegi bro
+        if( !user || !(await user.comparePassword(password))){
+            return res.status(401).json({error: 'Invalid email or password'});
+        }
+
+        // generate Token 
+        const payload = {
+            id: user.id,
+            email: user.email
+        }
+        const token = generateToken(payload);
+
+        // resturn token as response
+        res.json({token})
+    }catch(err){
+        console.error(err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 
 
 router.get('/', async(req,res)=>{
