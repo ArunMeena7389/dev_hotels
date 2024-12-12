@@ -2,15 +2,28 @@ const express = require("express")
 const router = express.Router();
 const bcrypt = require('bcrypt');
 
-
 const Person = require('../modules/person')
 const { jwtAuthMiddleware, generateToken } = require('./../jwt');
+const { isEmailValid } = require("../Hellps/content");
 
 // POST route to add a person
 router.post('/register', async (req, res) => {
+    const { name, email, work, mobile, password } = req.body;
     try {
-        const data = req.body // perosn ka data he 
+        if (!name || !email || !work || !mobile || !password)
+            return res.status(401).json({ error: 'All * field required.' });
 
+
+        if (!isEmailValid(email))
+            return res.status(401).json({ error: 'Invalid email.' });
+
+
+        const user_exist = await Person.findOne({ email: email });
+        if (user_exist)
+            return res.status(401).json({ error: 'User alerady exist got for log in.' });
+
+
+        const data = req.body // perosn ka data he 
         // Create kia person ka data
         const newPerson = new Person(data);
 
@@ -22,10 +35,7 @@ router.post('/register', async (req, res) => {
             id: response.id,
             email: response.email
         }
-        console.log(JSON.stringify(payload));
         const token = generateToken(payload);
-        console.log("Token is : ", token);
-
         res.status(200).json({ response: response, token: token });
     }
     catch (err) {

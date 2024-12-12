@@ -21,6 +21,9 @@ const MenuSchema = new mongoose.Schema({
     num_sales:{
         type:Number,
         default:0
+    },
+    image:{
+        type:String
     }
 });
 

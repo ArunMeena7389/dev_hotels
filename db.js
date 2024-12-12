@@ -9,8 +9,8 @@ const mongoURL = process.env.mongodb_url; // databse monog
 
 
 mongoose.connect(mongoURL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+    // useNewUrlParser: true,
+    // useUnifiedTopology: true
 });
 
 const db = mongoose.connection;

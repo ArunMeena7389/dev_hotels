@@ -7,7 +7,8 @@ const { jwtAuthMiddleware } = require('./../jwt');
 router.post('/create', jwtAuthMiddleware, async (req, res) => {
     try {
         const data = req.body //the request body contains person data
-
+        if (req.body.image)
+            data.image = `http://localhost:5000/img/${data.image}`
         //create a new person document using the mongose model
         const newItemMenu = new MenuItem(data);
         const response = await newItemMenu.save();
