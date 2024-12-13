@@ -1,14 +1,31 @@
+const multer = require("multer");
 const express = require("express")
 const router = express.Router();
 
 const MenuItem = require('../modules/MenuItem');
 const { jwtAuthMiddleware } = require('./../jwt');
 
-router.post('/create', jwtAuthMiddleware, async (req, res) => {
+
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './uploads')
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + "" + Math.floor(Math.random() * 1000000) + '.png')
+    }
+})
+
+// Initialize multer with the storage configuration
+var upload = multer({ storage });
+var typeUpload = upload.single('image');
+
+router.post('/create', jwtAuthMiddleware, typeUpload, async (req, res) => {
     try {
         const data = req.body //the request body contains person data
-        if (req.body.image)
-            data.image = `http://localhost:5000/img/${data.image}`
+        const { filename } = req.file || {};
+        if (filename) data.image_url = filename;
+
         //create a new person document using the mongose model
         const newItemMenu = new MenuItem(data);
         const response = await newItemMenu.save();

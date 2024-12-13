@@ -5,10 +5,10 @@ const MenuSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    taste:{
+    taste: {
         type: String,
-        enum:['sweet','spicy','sour'],
-        required:true
+        enum: ['sweet', 'spicy', 'sour'],
+        required: true
     },
     price: {
         type: String,
@@ -18,15 +18,15 @@ const MenuSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    num_sales:{
-        type:Number,
-        default:0
+    num_sales: {
+        type: Number,
+        default: 0
     },
-    image:{
-        type:String
+    image_url: {
+        type: String
     }
 });
 
-const MenuItem = mongoose.model('MenuItem',MenuSchema);
+const MenuItem = mongoose.model('MenuItem', MenuSchema);
 
 module.exports = MenuItem;

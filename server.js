@@ -37,12 +37,24 @@ app.post('/single', upload.single('image'), async (req, res) => {
   }
 })
 
+app.get('/images/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const image = await ImageModel.findOne({ filename: id })
+    if (!image) return res.send({ "msg": "image not found" })
+    const imagePath = path.join(__dirname, "uploads", image.filename)
+    res.sendFile(imagePath)
+  } catch {
+    res.status(401).json({ message: 'something failed' });
+  }
+})
+
 app.get('/img/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    const image = await ImageModel.findById(id)
-    if (!image) res.send({ "msg": "image not found" })
-    const imagePath = path.join(__dirname, "uploads", image.filename)
+    const image = await MenuItem.findOne({ image_url: id })
+    if (!image) return res.send({ "msg": "image not found" })
+    const imagePath = path.join(__dirname, "uploads", image.image_url)
     res.sendFile(imagePath)
   } catch {
     res.status(401).json({ message: 'something failed' });
@@ -86,13 +98,14 @@ app.get('/', function (req, res) {
 const personRoutes = require('./routes/personRoutes');
 const menuRoutes = require('./routes/menuRoutes');
 const ImageModel = require("./modules/image_model");
+const MenuItem = require("./modules/MenuItem");
 
 //use routes
 app.use('/person', personRoutes);
 app.use('/menu', menuRoutes);
 
 const PORT = process.env.PORT || 5000;
-app.listen(5000, () => {
+app.listen(PORT, () => {
   console.log('listening port 5000');
 
 })
