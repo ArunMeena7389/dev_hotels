@@ -40,7 +40,8 @@ router.post('/create', jwtAuthMiddleware, typeUpload, async (req, res) => {
     }
 })
 
-router.get('/', jwtAuthMiddleware, async (req, res) => {
+// router.get('/', jwtAuthMiddleware, async (req, res) => {
+    router.get('/', async (req, res) => {
     try {
         const data = await MenuItem.find();
         res.status(200).json(data);
