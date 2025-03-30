@@ -1,9 +1,11 @@
 const multer = require("multer");
 const express = require("express")
 const router = express.Router();
+const fs = require("fs");
 
 const MenuItem = require('../modules/MenuItem');
 const { jwtAuthMiddleware } = require('./../jwt');
+const path = require("path");
 
 
 
@@ -19,8 +21,9 @@ const storage = multer.diskStorage({
 // Initialize multer with the storage configuration
 var upload = multer({ storage });
 var typeUpload = upload.single('image');
+// router.post('/create', jwtAuthMiddleware, typeUpload, async (req, res) => {
 
-router.post('/create', jwtAuthMiddleware, typeUpload, async (req, res) => {
+router.post('/create', typeUpload, async (req, res) => {
     try {
         const data = req.body //the request body contains person data
         const { filename } = req.file || {};
@@ -41,7 +44,7 @@ router.post('/create', jwtAuthMiddleware, typeUpload, async (req, res) => {
 })
 
 // router.get('/', jwtAuthMiddleware, async (req, res) => {
-    router.get('/', async (req, res) => {
+router.get('/', async (req, res) => {
     try {
         const data = await MenuItem.find();
         res.status(200).json(data);
@@ -68,8 +71,8 @@ router.get('/taste/:type', jwtAuthMiddleware, async (req, res) => {
     }
 
 });
-
-router.put('/:id', jwtAuthMiddleware, async (req, res) => {
+// router.put('/:id', jwtAuthMiddleware, async (req, res) => {
+router.put('/:id', async (req, res) => {
     try {
         const menuId = req.params.id; // get id by url
         const updatedMenuData = req.body;
@@ -85,22 +88,29 @@ router.put('/:id', jwtAuthMiddleware, async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" })
     }
 })
-
-router.delete('/:id', jwtAuthMiddleware, async (req, res) => {
+// router.delete('/:id', jwtAuthMiddleware, async (req, res) => {
+router.delete('/:id', async (req, res) => {
     try {
-        const menuId = req.params.id; // get id by url
+        const menuId = req.params.id;
+        const response = await MenuItem.findByIdAndDelete(menuId);
 
-        const response = await MenuItem.findByIdAndDelete(menuId)
-        res.status(200).json({ message: "Item has deleted" })
-        if (!response) {
-            res.status(404).json({ error: "Person not found" })
+        const imagePath = path.join(__dirname, "../uploads", response.image_url);
+
+        // Check if file exists before deleting
+        if (fs.existsSync(imagePath)) {
+            fs.unlinkSync(imagePath); // Delete the file
         }
 
+        if (!response) {
+            return res.status(404).json({ error: "Item not found" });
+        }
+        res.status(200).json({ message: "Item has been deleted successfully" });
     } catch (err) {
-        res.status(500).json({ error: "Internal Server Error" })
+        if (err.name === "CastError") {
+            return res.status(400).json({ error: "Invalid item ID format" });
+        }
+        res.status(500).json({ error: "Internal Server Error" });
     }
-
-
-})
+});
 
 module.exports = router;
