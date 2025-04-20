@@ -88,12 +88,6 @@ app.post('/login', (req, res) => {
   }
 });
 
-app.get('/', function (req, res) {
-  res.send('Welcome to my data base')
-})
-
-
-
 //Import route file
 const personRoutes = require('./routes/personRoutes');
 const menuRoutes = require('./routes/menuRoutes');
@@ -106,6 +100,6 @@ app.use('/menu', menuRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log('listening port 5000');
+  console.log('listening port ' + PORT);
 
 })

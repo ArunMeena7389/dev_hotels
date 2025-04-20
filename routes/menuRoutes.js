@@ -6,6 +6,7 @@ const fs = require("fs");
 const MenuItem = require('../modules/MenuItem');
 const { jwtAuthMiddleware } = require('./../jwt');
 const path = require("path");
+const { menueField } = require("../Field");
 
 
 
@@ -21,38 +22,62 @@ const storage = multer.diskStorage({
 // Initialize multer with the storage configuration
 var upload = multer({ storage });
 var typeUpload = upload.single('image');
-// router.post('/create', jwtAuthMiddleware, typeUpload, async (req, res) => {
 
-router.post('/create', typeUpload, async (req, res) => {
+router.post('/create', jwtAuthMiddleware, typeUpload, async (req, res) => {
     try {
         const data = req.body //the request body contains person data
         const { filename } = req.file || {};
         if (filename) data.image_url = filename;
 
-        //create a new person document using the mongose model
         const newItemMenu = new MenuItem(data);
         const response = await newItemMenu.save();
         res.status(200).json(response);
 
 
     } catch (error) {
-        console.log(error, 'error api person');
         res.status(500).json({ error: "Internal server error" })
 
 
     }
 })
 
-// router.get('/', jwtAuthMiddleware, async (req, res) => {
-router.get('/', async (req, res) => {
+// get menu item by field
+// {
+//     "fields": ["name", "price", "image_url","taste","description"],
+//     "filter": {
+//       "taste": ["sweet", "spicy"]
+//     }
+//   }
+router.post('/', jwtAuthMiddleware, async (req, res) => {
     try {
-        const data = await MenuItem.find();
+        const { fields, filter } = req.body;
+        if (!fields || !Array.isArray(fields) || fields.length === 0) {
+            return res.status(200).json([]);
+        }
+
+        const allowedFields = menueField;
+        const filteredFields = fields.filter(field => allowedFields.includes(field));
+        const selectFields = filteredFields.join(' ');
+
+        const query = {};
+        if (filter && typeof filter === 'object') {
+            Object.keys(filter).forEach(key => {
+                if (allowedFields.includes(key)) {
+                    const value = filter[key];
+                    if (Array.isArray(value)) {
+                        query[key] = { $in: value };
+                    } else {
+                        query[key] = value;
+                    }
+                }
+            });
+        }
+        const data = await MenuItem.find(query).select(selectFields);
+
         res.status(200).json(data);
-
     } catch (error) {
-        res.status(500).json({ error: 'Internal Server error' })
+        res.status(500).json({ error: 'Internal server error' });
     }
-
 });
 
 router.get('/taste/:type', jwtAuthMiddleware, async (req, res) => {
@@ -71,34 +96,39 @@ router.get('/taste/:type', jwtAuthMiddleware, async (req, res) => {
     }
 
 });
-// router.put('/:id', jwtAuthMiddleware, async (req, res) => {
-router.put('/:id', async (req, res) => {
+router.put('/:id', jwtAuthMiddleware, typeUpload, async (req, res) => {
     try {
-        const menuId = req.params.id; // get id by url
+        const menuId = req.params.id;
         const updatedMenuData = req.body;
+        const { filename } = req.file || "";
+        if (filename && !updatedMenuData.image) updatedMenuData.image_url = filename;
+        const responseImage = await MenuItem.findById(menuId);
+        const imagePath = path.join(__dirname, "../uploads", responseImage.image_url);
+
+        if (fs.existsSync(imagePath)) {
+            fs.unlinkSync(imagePath);
+        }
         const response = await MenuItem.findByIdAndUpdate(menuId, updatedMenuData, {
-            new: true, // update date
-            runValidators: true //mongos validation
+            new: true,
+            runValidators: true
         })
         if (!response) {
-            res.status(404).json({ error: "Person not found" })
+            res.status(404).json({ error: "Person not found" });
         }
         res.status(200).json(response);
     } catch (error) {
-        res.status(500).json({ error: "Internal Server Error" })
+        res.status(500).json({ error: "Internal Server Error" });
     }
-})
-// router.delete('/:id', jwtAuthMiddleware, async (req, res) => {
-router.delete('/:id', async (req, res) => {
+});
+
+router.delete('/:id', jwtAuthMiddleware, async (req, res) => {
     try {
         const menuId = req.params.id;
         const response = await MenuItem.findByIdAndDelete(menuId);
-
         const imagePath = path.join(__dirname, "../uploads", response.image_url);
 
-        // Check if file exists before deleting
         if (fs.existsSync(imagePath)) {
-            fs.unlinkSync(imagePath); // Delete the file
+            fs.unlinkSync(imagePath);
         }
 
         if (!response) {

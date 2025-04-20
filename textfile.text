@@ -1,0 +1,7 @@
+// payload for menu api data
+// {
+//   "fields": ["name", "price", "image_url","taste","description"],
+//   "filter": {
+//     "taste": ["sweet", "spicy"]
+//   }
+// }

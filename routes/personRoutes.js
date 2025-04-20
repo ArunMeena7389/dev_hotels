@@ -7,42 +7,49 @@ const { jwtAuthMiddleware, generateToken } = require('./../jwt');
 const { isEmailValid } = require("../Hellps/content");
 
 // POST route to add a person
+
+const crypto = require('crypto');
+const { sendOTP } = require("../Utils/Mailer");
+
+function generateOTP() {
+    return crypto.randomInt(100000, 999999).toString();
+}
+
+let otpStore = {}; // For demo. Use Redis or DB in prod.
+
+router.post('/send-otp', async (req, res) => {
+    const { email } = req.body;
+    if (!isEmailValid(email)) return res.status(400).json({ error: 'Email required' });
+    const user_exist = await Person.findOne({ email: email });
+    if (user_exist)
+        return res.status(401).json({ error: 'User alerady exist go for log in.' });
+
+    const otp = generateOTP();
+    otpStore[email] = { otp, expires: Date.now() + 5 * 60 * 1000 }; // 5 mins
+
+    await sendOTP(email, otp);
+    res.status(200).json({ message: 'OTP sent' });
+});
+
 router.post('/register', async (req, res) => {
-    const { name, email, work, mobile, password } = req.body;
-    try {
-        if (!name || !email || !work || !mobile || !password)
-            return res.status(401).json({ error: 'All * field required.' });
+    const { name, email, password, otp } = req.body;
 
+    if (!name || !email || !password || !otp)
+        return res.status(400).json({ error: 'All fields are required' });
 
-        if (!isEmailValid(email))
-            return res.status(401).json({ error: 'Invalid email.' });
-
-
-        const user_exist = await Person.findOne({ email: email });
-        if (user_exist)
-            return res.status(401).json({ error: 'User alerady exist got for log in.' });
-
-
-        const data = req.body // perosn ka data he 
-        // Create kia person ka data
-        const newPerson = new Person(data);
-
-        // 1 naya person add kia he
-        const response = await newPerson.save();
-        console.log('data saved');
-
-        const payload = {
-            id: response.id,
-            email: response.email
-        }
-        const token = generateToken(payload);
-        res.status(200).json({ response: response, token: token });
+    if (!otpStore[email] || otpStore[email].otp !== otp || Date.now() > otpStore[email].expires) {
+        return res.status(401).json({ error: 'Invalid or expired OTP' });
     }
-    catch (err) {
-        console.log(err);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-})
+
+    delete otpStore[email];
+
+    const newUser = new Person({ name, email, password });
+    const response = await newUser.save();
+
+    const token = generateToken({ id: response._id, email: response.email });
+    res.status(200).json({ response, token });
+});
+
 // for login
 router.post('/login', async (req, res) => {
     try {
@@ -50,24 +57,23 @@ router.post('/login', async (req, res) => {
         const { email, password } = req.body;
 
         // Find the user by email
-        const user = await Person.findOne({ email: email });
+        const response = await Person.findOne({ email: email });
 
         // agr email or password match nhi kie to error ayegi bro
-        if (!user || !(await user.comparePassword(password))) {
+        if (!response || !(await response.comparePassword(password))) {
             return res.status(401).json({ error: 'Invalid email or password' });
         }
 
         // generate Token 
         const payload = {
-            id: user.id,
-            email: user.email
+            id: response.id,
+            email: response.email
         }
         const token = generateToken(payload);
 
         // resturn token as response
-        res.json({ token })
+        res.status(200).json({ response, token });
     } catch (err) {
-        console.error(err);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
@@ -96,7 +102,6 @@ router.post('/', jwtAuthMiddleware, async (req, res) => {
 
 
     } catch (error) {
-        console.log(error, 'error api person');
         res.status(500).json({ error: "Internal server error" })
 
 
