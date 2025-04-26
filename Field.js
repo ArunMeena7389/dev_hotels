@@ -4,5 +4,6 @@ export const menueField = [
     'description',
     'taste',
     'image_url',
-    '_id'
+    '_id',
+    'business_id'
 ];

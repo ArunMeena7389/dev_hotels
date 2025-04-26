@@ -22,32 +22,6 @@ const storage = multer.diskStorage({
   }
 })
 
-const upload = multer({ storage })
-
-app.post('/single', upload.single('image'), async (req, res) => {
-  try {
-    const { path, filename } = req.file;
-    const image = await ImageModel({ path, filename })
-    await image.save()
-    res.status(200).send({ "filename": filename, "id": image.id })
-
-  } catch (err) {
-    res.status(401).json({ message: 'something failed' });
-
-  }
-})
-
-app.get('/images/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    const image = await ImageModel.findOne({ filename: id })
-    if (!image) return res.send({ "msg": "image not found" })
-    const imagePath = path.join(__dirname, "uploads", image.filename)
-    res.sendFile(imagePath)
-  } catch {
-    res.status(401).json({ message: 'something failed' });
-  }
-})
 
 app.get('/img/:id', async (req, res) => {
   const { id } = req.params;

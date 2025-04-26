@@ -27,6 +27,9 @@ const MenuSchema = new mongoose.Schema({
     },
     description: {
         type: String
+    },
+    business_id:{
+        type: String
     }
 });
 

@@ -25,29 +25,19 @@ var typeUpload = upload.single('image');
 
 router.post('/create', jwtAuthMiddleware, typeUpload, async (req, res) => {
     try {
-        const data = req.body //the request body contains person data
+        const data = req.body;
         const { filename } = req.file || {};
         if (filename) data.image_url = filename;
-
+        data.business_id = req.user.id;
         const newItemMenu = new MenuItem(data);
         const response = await newItemMenu.save();
         res.status(200).json(response);
 
-
     } catch (error) {
         res.status(500).json({ error: "Internal server error" })
-
-
     }
 })
 
-// get menu item by field
-// {
-//     "fields": ["name", "price", "image_url","taste","description"],
-//     "filter": {
-//       "taste": ["sweet", "spicy"]
-//     }
-//   }
 router.post('/', jwtAuthMiddleware, async (req, res) => {
     try {
         const { fields, filter } = req.body;
@@ -59,7 +49,8 @@ router.post('/', jwtAuthMiddleware, async (req, res) => {
         const filteredFields = fields.filter(field => allowedFields.includes(field));
         const selectFields = filteredFields.join(' ');
 
-        const query = {};
+        const query = { business_id: req.user.id };
+        
         if (filter && typeof filter === 'object') {
             Object.keys(filter).forEach(key => {
                 if (allowedFields.includes(key)) {
@@ -76,6 +67,7 @@ router.post('/', jwtAuthMiddleware, async (req, res) => {
 
         res.status(200).json(data);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
