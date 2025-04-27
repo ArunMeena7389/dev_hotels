@@ -50,7 +50,7 @@ router.post('/', jwtAuthMiddleware, async (req, res) => {
         const selectFields = filteredFields.join(' ');
 
         const query = { business_id: req.user.id };
-        
+
         if (filter && typeof filter === 'object') {
             Object.keys(filter).forEach(key => {
                 if (allowedFields.includes(key)) {
@@ -134,5 +134,22 @@ router.delete('/:id', jwtAuthMiddleware, async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
+
+router.get('/data', async (req, res) => {
+    try {
+      const businessId = req.headers.business_id;
+  
+      if (!businessId) {
+        return res.status(400).json({ error: 'Business ID is required' });
+      }
+  
+      const data = await MenuItem.find({ business_id: businessId });
+  
+      res.status(200).json(data);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
 
 module.exports = router;
