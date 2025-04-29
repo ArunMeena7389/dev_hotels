@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 //image need 
 const multer = require('multer');
 const cors = require('cors');
+const fs = require('fs');
 const path = require('path')
 app.use(cors());
 app.use(express.static('uploads'));
@@ -22,18 +23,36 @@ const storage = multer.diskStorage({
   }
 })
 
+// app.get('/img/:id', async (req, res) => {
+//   const { id } = req.params;
+//   try {
+//     const image = await MenuItem.findOne({ image_url: id })
+//     if (!image) return res.send({ "msg": "image not found" })
+//     const imagePath = path.join(__dirname, "uploads", image.image_url)
+//     res.sendFile(imagePath)
+//   } catch {
+//     res.status(401).json({ message: 'something failed' });
+//   }
+// })
 
 app.get('/img/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    const image = await MenuItem.findOne({ image_url: id })
-    if (!image) return res.send({ "msg": "image not found" })
-    const imagePath = path.join(__dirname, "uploads", image.image_url)
-    res.sendFile(imagePath)
-  } catch {
-    res.status(401).json({ message: 'something failed' });
+    const image = await MenuItem.findOne({ image_url: id });
+    if (!image) return res.status(404).json({ msg: "Image metadata not found in DB" });
+
+    const imagePath = path.join(__dirname, "uploads", image.image_url);
+
+    if (!fs.existsSync(imagePath)) {
+      return res.status(404).json({ msg: "Image file not found on server" });
+    }
+
+    res.sendFile(imagePath);
+  } catch (err) {
+    console.error("Image fetch error:", err);
+    res.status(500).json({ message: 'Something failed on the server' });
   }
-})
+});
 //--------------------------------
 
 
