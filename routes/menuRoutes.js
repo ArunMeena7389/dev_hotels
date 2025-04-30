@@ -1,43 +1,35 @@
-const multer = require("multer");
 const express = require("express")
 const router = express.Router();
-const fs = require("fs");
+const uploads = require('../Config/multer');
 
 const MenuItem = require('../modules/MenuItem');
 const { jwtAuthMiddleware } = require('./../jwt');
-const path = require("path");
 const { menueField } = require("../Field");
 
-
-
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, './uploads')
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + "" + Math.floor(Math.random() * 1000000) + '.png')
-    }
-})
-
 // Initialize multer with the storage configuration
-var upload = multer({ storage });
-var typeUpload = upload.single('image');
+var typeUpload = uploads.single('image');
 
 router.post('/create', jwtAuthMiddleware, typeUpload, async (req, res) => {
     try {
-        const data = req.body;
-        const { filename } = req.file || {};
-        if (filename) data.image_url = filename;
-        data.business_id = req.user.id;
-        const newItemMenu = new MenuItem(data);
-        const response = await newItemMenu.save();
-        res.status(200).json(response);
-
+      const data = req.body;
+  
+      if (req.file && req.file.path) {
+        data.image_url = req.file.path;
+      }
+  
+      data.business_id = req.user.id;
+  
+      const newItemMenu = new MenuItem(data);
+      const response = await newItemMenu.save();
+  
+      res.status(200).json(response);
     } catch (error) {
-        res.status(500).json({ error: "Internal server error" })
+      console.error(error);
+      res.status(500).json({ error: "Internal server error" });
     }
-})
+  });
 
+  
 router.post('/', jwtAuthMiddleware, async (req, res) => {
     try {
         const { fields, filter } = req.body;
@@ -90,38 +82,32 @@ router.get('/taste/:type', jwtAuthMiddleware, async (req, res) => {
 });
 router.put('/:id', jwtAuthMiddleware, typeUpload, async (req, res) => {
     try {
-        const menuId = req.params.id;
-        const updatedMenuData = req.body;
-        const { filename } = req.file || "";
-        if (filename && !updatedMenuData.image) updatedMenuData.image_url = filename;
-        const responseImage = await MenuItem.findById(menuId);
-        const imagePath = path.join(__dirname, "../uploads", responseImage.image_url);
-
-        if (fs.existsSync(imagePath)) {
-            fs.unlinkSync(imagePath);
-        }
-        const response = await MenuItem.findByIdAndUpdate(menuId, updatedMenuData, {
-            new: true,
-            runValidators: true
-        })
-        if (!response) {
-            res.status(404).json({ error: "Person not found" });
-        }
-        res.status(200).json(response);
+      const menuId = req.params.id;
+      const updatedMenuData = req.body;  
+      if (req.file && req.file.path) {
+        updatedMenuData.image_url = req.file.path; 
+      }
+  
+      const response = await MenuItem.findByIdAndUpdate(menuId, updatedMenuData, {
+        new: true,
+        runValidators: true,
+      });
+  
+      if (!response) {
+        return res.status(404).json({ error: "Menu item not found" });
+      }
+  
+      res.status(200).json(response);
     } catch (error) {
-        res.status(500).json({ error: "Internal Server Error" });
+      console.error(error);
+      res.status(500).json({ error: "Internal Server Error" });
     }
-});
-
+  });
+  
 router.delete('/:id', jwtAuthMiddleware, async (req, res) => {
     try {
         const menuId = req.params.id;
         const response = await MenuItem.findByIdAndDelete(menuId);
-        const imagePath = path.join(__dirname, "../uploads", response.image_url);
-
-        if (fs.existsSync(imagePath)) {
-            fs.unlinkSync(imagePath);
-        }
 
         if (!response) {
             return res.status(404).json({ error: "Item not found" });
