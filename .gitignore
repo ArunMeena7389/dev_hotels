@@ -1,0 +1,11 @@
+# ignore node modules
+
+node_modules/
+
+#env 
+.env
+
+Hellps/serviceAccountKey.json
+#other
+
+Hellps/serviceAccountKey.json
