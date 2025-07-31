@@ -2,7 +2,7 @@ const express = require("express")
 const router = express.Router();
 const uploads = require('../Config/multer');
 
-const MenuItem = require('../modules/MenuItem');
+const MenuItem = require('../Schema/MenuItem');
 const { jwtAuthMiddleware } = require('./../jwt');
 const { menueField } = require("../Field");
 

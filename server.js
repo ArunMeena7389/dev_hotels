@@ -8,11 +8,26 @@ const multer = require('multer');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path')
-app.use(cors());
 app.use(express.static('uploads'));
+// const cookieParser = require('cookie-parser');
+// app.use(cookieParser());
 
 const passport = require('passport');
 
+const allowedOrigins = ['http://localhost:3000', 'https://react-order-nine.vercel.app'];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 //for image-----------
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -23,17 +38,6 @@ const storage = multer.diskStorage({
   }
 })
 
-// app.get('/img/:id', async (req, res) => {
-//   const { id } = req.params;
-//   try {
-//     const image = await MenuItem.findOne({ image_url: id })
-//     if (!image) return res.send({ "msg": "image not found" })
-//     const imagePath = path.join(__dirname, "uploads", image.image_url)
-//     res.sendFile(imagePath)
-//   } catch {
-//     res.status(401).json({ message: 'something failed' });
-//   }
-// })
 
 app.get('/img/:id', async (req, res) => {
   const { id } = req.params;
@@ -84,7 +88,7 @@ app.post('/login', (req, res) => {
 //Import route file
 const personRoutes = require('./routes/personRoutes');
 const menuRoutes = require('./routes/menuRoutes');
-const MenuItem = require("./modules/MenuItem");
+const MenuItem = require("./Schema/MenuItem");
 const CategoryRoutes = require('./routes/CategoryRoutes');
 const OrderListData = require('./routes/OrderListRoute');
 const MobileOtp = require('./routes/sentOTPmobile');

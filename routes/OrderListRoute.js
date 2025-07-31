@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const OrderListData = require('../modules/OrderListData');
+const OrderListData = require('../Schema/OrderListData');
 const { jwtAuthMiddleware } = require('../jwt');
 
 // router.post('/create', jwtAuthMiddleware, async (req, res) => {

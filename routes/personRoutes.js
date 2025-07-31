@@ -1,7 +1,8 @@
 const express = require("express")
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 
-const Person = require('../modules/person')
+const Person = require('../Schema/person')
 const { jwtAuthMiddleware, generateToken } = require('./../jwt');
 const { isEmailValid } = require("../Hellps/content");
 
@@ -78,6 +79,7 @@ router.post('/login', async (req, res) => {
 });
 
 
+
 router.get('/', jwtAuthMiddleware, async (req, res) => {
     try {
         const data = await Person.find();
@@ -107,24 +109,28 @@ router.post('/', jwtAuthMiddleware, async (req, res) => {
     }
 })
 
-router.get('/:workType', jwtAuthMiddleware, async (req, res) => {
-    try {
-        const workType = req.params.workType;
-        if (workType == "chef" || workType == "waiter" || workType == "manager") {
-            const data = await Person.find({ work: workType });
-            res.status(200).json(data);
+// for refresh token 
+router.post('/refresh-token', async (req, res) => {
+  const { token } = req.body; // 🔁 client sends the expired token
 
+  if (!token) return res.status(401).json({ error: 'Token is required' });
 
+  try {
+    // Decode without verifying expiration
+    const decoded = jwt.verify(token, process.env.JWT_SECRET, { ignoreExpiration: true });
 
-        } else {
-            res.status(404).json({ error: 'Internal Server error' })
+    // Optional: Verify user still exists
+    const user = await Person.findById(decoded.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
 
-        }
+    // Re-issue new token
+    const newToken = generateToken({ id: user.id, email: user.email });
+    res.status(200).json({ token: newToken });
+  } catch (err) {
+    console.error(err);
+    res.status(403).json({ error: 'Invalid token' });
+  }
+});
 
-    } catch (error) {
-        res.status(500).json({ error: 'Internal Server error' })
-    }
-
-})
 
 module.exports = router;

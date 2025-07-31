@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const CategoryItem = require('../modules/CategoryItem');
+const CategoryItem = require('../Schema/CategoryItem');
 const { jwtAuthMiddleware } = require('../jwt');
 
 router.post('/create', jwtAuthMiddleware, async (req, res) => {

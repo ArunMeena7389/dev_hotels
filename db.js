@@ -14,14 +14,10 @@ mongoose.connect(mongoURL)
 
 const db = mongoose.connection;
 
-db.on('connected', () => {
-    console.log("mongo db connected------yes");
-
-})
+db.on('connected', () => { })
 
 db.on('error', (error) => {
     console.log("mongo db connected------error", error);
-
 })
 
 db.on('disconnected', () => {

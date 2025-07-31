@@ -1,6 +1,6 @@
 const express = require("express")
 const router = express.Router();
-const Customer = require('../modules/Customer')
+const Customer = require('../Schema/Customer')
 
 router.post('/add-find', async (req, res) => {
     const { name, mobile } = req.body;
