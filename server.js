@@ -9,6 +9,18 @@ const cors = require("cors");
 const fs = require("fs");
 const path = require("path");
 app.use(express.static("uploads"));
+
+const http = require("http");
+const socketIo = require("socket.io");
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: ["http://localhost:3000", "https://react-order-nine.vercel.app"],
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
+app.set("io", io);
 // const cookieParser = require('cookie-parser');
 // app.use(cookieParser());
 
@@ -108,6 +120,9 @@ app.use("/customer", CustomerAdd);
 app.use("/ai", AiDescription);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log("listening port " + PORT);
+// app.listen(PORT, () => {
+//   console.log("listening port " + PORT);
+// });
+server.listen(PORT, () => {
+  console.log("Socket.IO server listening on port " + PORT);
 });
