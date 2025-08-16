@@ -15,12 +15,33 @@ const socketIo = require("socket.io");
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: ["http://localhost:3000", "https://react-order-nine.vercel.app"],
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:5000",              // 👈 add this
+      "https://react-order-nine.vercel.app",
+      "https://dev-hotels.onrender.com",
+      // If you later use an https tunnel (ngrok), add that https origin here too.
+    ],
     methods: ["GET", "POST"],
     credentials: true,
   },
 });
 app.set("io", io);
+// ----------------
+io.on("connection", (socket) => {
+  console.log("New client connected:", socket.id);
+
+  // Receive video chunks from sender (mobile)
+  socket.on("video-stream", (data) => {
+    // Broadcast to all other clients (viewers)
+    socket.broadcast.emit("video-stream", data);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Client disconnected:", socket.id);
+  });
+});
+//-----------------
 // const cookieParser = require('cookie-parser');
 // app.use(cookieParser());
 
