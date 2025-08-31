@@ -7,7 +7,7 @@ const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TO
 
 // 1. Send OTP
 router.post('/send-otp', async (req, res) => {
-  const { phone } = req.body;
+  const { phone } = req.body;    
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
   try {
@@ -22,11 +22,10 @@ router.post('/send-otp', async (req, res) => {
     }
 
     await user.save();
-
     await client.messages.create({
       body: `Your OTP is ${otp}`,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to: phone
+        from: '+17744834199', // Twilio WhatsApp sandbox number
+      to: `+917389422910`
     });
 
     res.status(200).json({ message: 'OTP sent successfully' });

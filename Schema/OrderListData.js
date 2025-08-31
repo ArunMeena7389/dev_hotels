@@ -36,6 +36,11 @@ const OrderListSchema = new mongoose.Schema({
     order_accept:{
         type:Boolean,
         default:false
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+        expires: 60 * 60 * 24 // 24 hours (in seconds)
     }
 });
 

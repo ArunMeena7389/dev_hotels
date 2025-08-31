@@ -11,8 +11,9 @@ router.post("/create", async (req, res) => {
     const newItemOrder = new OrderListData(data);
     const response = await newItemOrder.save();
 
-    const io = req.app.get("io");
-    io.emit("new_order", response);
+    if (global._io) {
+      global._io.emit("new_order", response);
+    }
 
     res.status(200).json(response);
   } catch (error) {

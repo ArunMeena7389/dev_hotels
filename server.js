@@ -28,6 +28,7 @@ const OrderListData = require("./routes/OrderListRoute");
 const MobileOtp = require("./routes/sentOTPmobile");
 const CustomerAdd = require("./routes/CustomerRoute");
 const AiDescription = require("./routes/AiRoute");
+const PackageRoute = require("./routes/PackageRoute");
 
 //use routes
 app.use("/person", personRoutes);
@@ -37,6 +38,7 @@ app.use("/order", OrderListData);
 app.use("/mobile", MobileOtp);
 app.use("/customer", CustomerAdd);
 app.use("/ai", AiDescription);
+app.use("/package",PackageRoute);
 
 const PORT = process.env.PORT || 5000;
 // app.listen(PORT, () => {
