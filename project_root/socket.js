@@ -17,16 +17,12 @@ module.exports = (server) => {
   global._io = io;
 
   io.on("connection", (socket) => {
-    console.log("🔌 New client connected:", socket.id);
-
     // Handle video stream
     socket.on("video-stream", (data) => {
       socket.broadcast.emit("video-stream", data);
     });
 
-    socket.on("disconnect", () => {
-      console.log("❌ Client disconnected:", socket.id);
-    });
+    socket.on("disconnect", () => {});
   });
 
   return io;

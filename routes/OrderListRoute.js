@@ -25,12 +25,31 @@ router.post("/create", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const businessId = req.headers.business_id;
-    console.log(businessId, "-------------businessId");
     const orderResponse = await OrderListData.find({ business_id: businessId });
     res.status(200).json(orderResponse);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.patch("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    const updatedUser = await OrderListData.findByIdAndUpdate(id, updates, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    res.json(updatedUser);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
